@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="An editorial, chef-grade cooking guide for {{ meal_name }} — dynamically sourced by the smart dietary advisor expert system.">
+    <title>{{ meal_name }} · Recipe — Nutrition_Exoert</title>
+
+    <!-- Premium editorial type system: Playfair Display (serif display),
+         Inter (UI/body), Tajawal (Arabic). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================
+           DESIGN TOKENS
+        ========================================================== */
+        :root {
+            --serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+            --sans: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+            --arabic: 'Tajawal', 'Segoe UI', sans-serif;
+
+            --paper: #fdfcfb;
+            --surface: #f8f9fa;
+            --ink: #171412;
+            --charcoal: #333333;
+            --muted: #8a8380;
+            --line: #ebe7e3;
+            --accent: #7c2035;
+            --accent-deep: #581825;
+            --gold: #b08d57;
+            --amber-bg: #fff7e8;
+            --amber-line: #f0dfc0;
+            --amber-text: #8a5a18;
+
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --shadow-card: 0 24px 48px -20px rgba(23, 20, 18, 0.16), 0 4px 12px -6px rgba(23, 20, 18, 0.06);
+            --shadow-float: 0 32px 64px -24px rgba(23, 20, 18, 0.28);
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--charcoal);
+            font-family: var(--sans);
+            font-size: 16px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+        ::selection { background: rgba(124, 32, 53, 0.16); }
+        img { display: block; }
+        a { color: inherit; }
+        button { font-family: inherit; }
+
+        /* Minimal utilities driven by JS */
+        .hidden { display: none !important; }
+
+        /* ==========================================================
+           KEYFRAMES
+        ========================================================== */
+        @keyframes pageEnter { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+        @keyframes imgReveal { from { opacity: 0.35; transform: scale(1.09); } to { opacity: 1; transform: scale(1); } }
+        @keyframes stepIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        @keyframes shimmerBg { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+        @keyframes shine { 0% { transform: translateX(-110%); } 100% { transform: translateX(230%); } }
+        @keyframes shineRtl { 0% { transform: translateX(110%); } 100% { transform: translateX(-230%); } }
+
+        .page-enter { animation: pageEnter 0.8s var(--ease) both; }
+        .img-reveal { animation: imgReveal 1.6s var(--ease) both; will-change: transform; }
+        .step-in { animation: stepIn 0.6s var(--ease) both; }
+        .fade-in { animation: fadeIn 0.4s ease both; }
+
+        /* ==========================================================
+           SHIMMERING SKELETON SYSTEM
+        ========================================================== */
+        .skel-hero {
+            height: clamp(380px, 58vh, 560px);
+            background: linear-gradient(100deg, #edeae7 30%, #f6f4f2 50%, #edeae7 70%);
+            background-size: 200% 100%;
+            animation: shimmerBg 1.5s linear infinite;
+        }
+        .skel-bar {
+            position: relative; overflow: hidden;
+            background: #eeebE8; border-radius: 8px;
+        }
+        .skel-bar::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+            animation: shine 1.6s ease-in-out infinite;
+        }
+        [dir="rtl"] .skel-bar::after { animation-name: shineRtl; }
+        .skel-row { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 28px; }
+
+        /* ==========================================================
+           TOP BAR
+        ========================================================== */
+        .topbar {
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(253, 252, 251, 0.85);
+            backdrop-filter: blur(18px) saturate(1.4);
+            -webkit-backdrop-filter: blur(18px) saturate(1.4);
+            border-bottom: 1px solid var(--line);
+        }
+        .topbar-inner {
+            max-width: 1160px; margin: 0 auto; padding: 0 24px;
+            height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        }
+        .topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+        /* Minimalist text-link with animated underline */
+        .link-quiet {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 14px; font-weight: 600; color: var(--ink);
+            text-decoration: none; padding: 8px 4px; cursor: pointer;
+        }
+        .link-quiet .lbl { position: relative; }
+        .link-quiet .lbl::after {
+            content: ''; position: absolute; inset-inline-start: 0; bottom: -3px;
+            width: 100%; height: 1.5px; background: var(--accent);
+            transform: scaleX(0); transform-origin: inline-start;
+            transition: transform 0.3s var(--ease);
+        }
+        .link-quiet:hover .lbl::after { transform: scaleX(1); }
+        .link-quiet svg { transition: transform 0.3s var(--ease); }
+        .link-quiet:hover svg { transform: translateX(-3px); }
+        [dir="rtl"] .link-quiet:hover svg { transform: translateX(3px) scaleX(-1); }
+
+        /* Pill buttons — deep charcoal, quiet luxury */
+        .btn-pill {
+            display: inline-flex; align-items: center; gap: 8px;
+            border: 0; cursor: pointer; border-radius: 999px;
+            padding: 11px 22px; font-size: 13.5px; font-weight: 600;
+            background: #222222; color: #ffffff; letter-spacing: 0.01em;
+            box-shadow: 0 10px 24px -12px rgba(23, 20, 18, 0.45);
+            transition: transform 0.25s var(--ease), box-shadow 0.3s var(--ease), background 0.25s ease;
+        }
+        .btn-pill:hover {
+            transform: scale(1.02);
+            background: #000000;
+            box-shadow: 0 18px 36px -14px rgba(23, 20, 18, 0.55);
+        }
+        .btn-pill:active { transform: scale(0.98); }
+
+        .btn-ghost {
+            display: inline-flex; align-items: center; gap: 8px;
+            cursor: pointer; border-radius: 999px;
+            padding: 10px 18px; font-size: 13.5px; font-weight: 600;
+            background: transparent; color: var(--ink);
+            border: 1px solid var(--line);
+            transition: transform 0.25s var(--ease), border-color 0.25s ease, box-shadow 0.3s var(--ease), background 0.25s ease;
+        }
+        .btn-ghost:hover {
+            transform: scale(1.02);
+            border-color: #d8d2cc;
+            background: #ffffff;
+            box-shadow: 0 12px 28px -14px rgba(23, 20, 18, 0.25);
+        }
+        .btn-ghost .globesep { color: var(--muted); font-weight: 500; }
+        .btn-ghost .lang-active { color: var(--accent); }
+        .btn-ghost:focus-visible, .btn-pill:focus-visible, .link-quiet:focus-visible {
+            outline: 2px solid var(--accent); outline-offset: 3px;
+        }
+
+        .chip-verified {
+            display: none; align-items: center; gap: 8px;
+            font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+            color: #1f7a4d; background: #edf7f1; border: 1px solid #d3ead9;
+            padding: 7px 14px; border-radius: 999px;
+        }
+        @media (min-width: 720px) { .chip-verified { display: inline-flex; } }
+        .chip-verified .dot { width: 6px; height: 6px; border-radius: 50%; background: #27a56a; }
+
+        /* ==========================================================
+           HERO — edge-to-edge editorial cover
+        ========================================================== */
+        .hero { position: relative; overflow: hidden; background: #17141a; }
+        .hero-media { position: relative; height: clamp(380px, 58vh, 560px); }
+        .hero-media img {
+            width: 100%; height: 100%; object-fit: cover; object-position: center;
+        }
+        .hero-fallback {
+            position: absolute; inset: 0; display: none;
+            flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+            background:
+                radial-gradient(80% 120% at 20% 10%, rgba(124, 32, 53, 0.55), transparent 60%),
+                radial-gradient(70% 100% at 85% 90%, rgba(176, 141, 87, 0.28), transparent 55%),
+                linear-gradient(160deg, #221019, #14090e 70%);
+        }
+        .hero-fallback.show { display: flex; }
+        .hero-fallback p { margin: 0; font-size: 12px; color: rgba(255, 255, 255, 0.55); letter-spacing: 0.06em; }
+
+        .hero-overlay {
+            position: absolute; inset-inline: 0; bottom: 0;
+            background: linear-gradient(to top, rgba(12, 8, 10, 0.86) 0%, rgba(12, 8, 10, 0.42) 42%, transparent 74%);
+        }
+        .hero-caption {
+            max-width: 1160px; margin: 0 auto; padding: 96px 24px 44px;
+        }
+        .eyebrow {
+            margin: 0 0 14px;
+            font-size: 11px; font-weight: 700; letter-spacing: 0.28em; text-transform: uppercase;
+            color: #d9b98c;
+        }
+        .hero-title {
+            margin: 0;
+            font-family: var(--serif); font-weight: 600;
+            font-size: clamp(2.1rem, 5.4vw, 4rem);
+            line-height: 1.08; letter-spacing: -0.01em;
+            color: #ffffff; max-width: 18ch;
+            text-wrap: balance;
+        }
+        .hero-badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+        .badge-glass {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 12.5px; font-weight: 600; color: #fff;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            padding: 8px 16px; border-radius: 999px;
+        }
+        .badge-glass.keto { border-color: rgba(126, 217, 163, 0.5); background: rgba(31, 122, 77, 0.35); }
+
+        /* ==========================================================
+           LAYOUT — editorial two-column grid
+        ========================================================== */
+        .layout {
+            max-width: 1160px; margin: 0 auto;
+            padding: 56px 24px 88px;
+            display: grid; grid-template-columns: minmax(290px, 360px) 1fr;
+            gap: 56px; align-items: start;
+        }
+        @media (max-width: 920px) {
+            .layout { grid-template-columns: 1fr; gap: 36px; padding-top: 36px; }
+        }
+
+        /* ---- Floating side card ------------------------------------ */
+        .side-card {
+            position: sticky; top: 96px;
+            background: var(--surface);
+            border: 1px solid #eef0f2;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            padding: 30px 28px 26px;
+        }
+        @media (max-width: 920px) { .side-card { position: static; } }
+
+        .card-heading {
+            display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+            margin: 0 0 6px;
+        }
+        .card-heading h2 {
+            margin: 0; font-family: var(--serif); font-weight: 600;
+            font-size: 23px; color: var(--ink); letter-spacing: -0.01em;
+        }
+        .count-chip {
+            font-size: 11.5px; font-weight: 700; color: var(--muted);
+            background: #fff; border: 1px solid var(--line);
+            padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+        }
+        .card-sub { margin: 0 0 18px; font-size: 12.5px; color: var(--muted); }
+
+        .ing-list { list-style: none; margin: 18px 0 0; padding: 0; }
+        .ing-row {
+            display: flex; align-items: center; justify-content: space-between; gap: 14px;
+            padding: 12px 4px;
+            border-bottom: 1px dashed #e4e0db;
+            transition: transform 0.3s var(--ease), background 0.3s ease;
+        }
+        .ing-row:last-child { border-bottom: 0; }
+        .ing-row:hover { transform: translateX(4px); }
+        [dir="rtl"] .ing-row:hover { transform: translateX(-4px); }
+        .ing-name { display: flex; align-items: center; gap: 11px; min-width: 0; font-size: 14.5px; font-weight: 500; color: var(--ink); }
+        .ing-name .tick { flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; background: #f4e7ea; color: var(--accent); display: inline-flex; align-items: center; justify-content: center; }
+        .ing-name .tick svg { width: 11px; height: 11px; }
+        .ing-name .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .measure-pill {
+            flex-shrink: 0;
+            font-size: 11.5px; font-weight: 700; letter-spacing: 0.02em;
+            color: var(--accent-deep); background: #fff;
+            border: 1px solid #ecdfe3;
+            padding: 5px 11px; border-radius: 999px; white-space: nowrap;
+        }
+        .card-footnote {
+            margin: 20px 0 0; padding-top: 16px; border-top: 1px solid #e9e5e0;
+            font-size: 11.5px; line-height: 1.6; color: var(--muted);
+        }
+
+        /* ---- At-a-glance / macros ----------------------------------- */
+        .glance { margin-top: 26px; padding-top: 22px; border-top: 1px solid #e9e5e0; }
+        .glance h3 {
+            margin: 0 0 14px; font-size: 11px; font-weight: 700;
+            letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted);
+        }
+        .glance-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .stat {
+            background: #fff; border: 1px solid var(--line); border-radius: var(--radius-md);
+            padding: 12px 10px; text-align: center;
+        }
+        .stat .k { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+        .stat .v { display: block; margin-top: 4px; font-size: 15px; font-weight: 700; color: var(--ink); }
+        .macro-wrap { margin-top: 18px; }
+        .macro-track { display: flex; height: 7px; border-radius: 999px; overflow: hidden; background: #eceae7; }
+        .macro-seg { height: 100%; width: 0%; transition: width 0.8s var(--ease); }
+        .macro-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 11px; font-weight: 600; color: var(--muted); }
+        .macro-legend b { color: var(--ink); font-weight: 700; }
+        .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-inline-end: 6px; }
+
+        /* ==========================================================
+           CONTENT COLUMN — the recipe itself
+        ========================================================== */
+        .recipe-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+        .recipe-head h2 {
+            margin: 0; font-family: var(--serif); font-weight: 600;
+            font-size: clamp(26px, 3.2vw, 34px); color: var(--ink); letter-spacing: -0.01em;
+        }
+        .source-tag {
+            font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--accent-deep); background: #f7ecEF; border: 1px solid #eddbe1;
+            padding: 7px 14px; border-radius: 999px;
+        }
+        .rule { height: 3px; width: 64px; background: var(--gold); border-radius: 999px; margin: 18px 0 34px; }
+
+        .notice {
+            margin: 0 0 28px; padding: 14px 18px;
+            background: var(--amber-bg); border: 1px solid var(--amber-line);
+            border-radius: var(--radius-md);
+            font-size: 13px; line-height: 1.6; color: var(--amber-text);
+        }
+
+        /* ---- Structured steps (verified / engine guide) -------------- */
+        .steps-list { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+        .steps-list li {
+            counter-increment: step;
+            position: relative;
+            padding-inline-start: 66px;
+            margin-bottom: 34px;
+        }
+        .steps-list li::before {
+            content: counter(step);
+            position: absolute; inset-inline-start: 0; top: -2px;
+            width: 44px; height: 44px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            background: #fff; border: 1px solid #eadfe2;
+            color: var(--accent); font-family: var(--serif);
+            font-size: 19px; font-weight: 700; font-style: italic;
+            box-shadow: 0 10px 22px -12px rgba(124, 32, 53, 0.35);
+            transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+        }
+        .steps-list li:hover::before { transform: translateY(-3px); box-shadow: 0 16px 28px -12px rgba(124, 32, 53, 0.45); }
+        .step-title {
+            margin: 0 0 6px; font-family: var(--serif);
+            font-size: 19px; font-weight: 600; color: var(--ink); letter-spacing: -0.005em;
+        }
+        .step-body { margin: 0; font-size: 16px; line-height: 1.8; color: var(--charcoal); }
+
+        /* ==========================================================
+           INJECTED AI TEXT — #modalSteps editorial typography
+        ========================================================== */
+        #modalSteps { font-size: 16px; line-height: 1.8; color: var(--charcoal); }
+        #modalSteps h1, #modalSteps h2, #modalSteps h3, #modalSteps h4 {
+            font-family: var(--serif); color: var(--ink); font-weight: 600;
+            margin: 44px 0 16px; letter-spacing: -0.01em; line-height: 1.25;
+        }
+        #modalSteps > :first-child { margin-top: 0; }
+        #modalSteps h1 { font-size: 30px; }
+        #modalSteps h2 { font-size: 26px; }
+        #modalSteps h3 {
+            font-size: 14px; text-transform: uppercase; letter-spacing: 0.18em;
+            color: var(--accent-deep);
+            display: flex; align-items: center; gap: 12px;
+        }
+        [dir="rtl"] #modalSteps h3 { letter-spacing: 0.04em; }
+        #modalSteps h3::before {
+            content: ''; flex-shrink: 0; width: 26px; height: 2px;
+            background: var(--gold); border-radius: 999px;
+        }
+        #modalSteps h4 { font-size: 19px; }
+
+        #modalSteps p { margin: 0 0 22px; font-size: 16px; line-height: 1.85; color: var(--charcoal); }
+
+        /* Lists: no cheap bullets — gold accent dots + editorial rhythm */
+        #modalSteps ul, #modalSteps ol { margin: 0 0 30px; padding: 0; list-style: none; }
+        #modalSteps ul li {
+            position: relative;
+            padding-inline-start: 30px;
+            margin-bottom: 24px;
+            font-size: 16px; line-height: 1.8; color: var(--charcoal);
+        }
+        #modalSteps ul li::before {
+            content: ''; position: absolute; inset-inline-start: 4px; top: 0.72em;
+            width: 9px; height: 9px; border-radius: 50%;
+            background: var(--gold);
+            box-shadow: 0 0 0 3px rgba(176, 141, 87, 0.18);
+        }
+        #modalSteps ol { counter-reset: aistep; }
+        #modalSteps ol li {
+            position: relative; counter-increment: aistep;
+            padding-inline-start: 46px; margin-bottom: 24px;
+            font-size: 16px; line-height: 1.8; color: var(--charcoal);
+        }
+        #modalSteps ol li::before {
+            content: counter(aistep);
+            position: absolute; inset-inline-start: 0; top: 0.1em;
+            width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--accent); color: #fff;
+            font-family: var(--serif); font-style: italic; font-weight: 700; font-size: 14px;
+        }
+        #modalSteps li strong, #modalSteps li b, #modalSteps p strong { color: var(--ink); font-weight: 700; }
+        #modalSteps em, #modalSteps i { color: var(--accent-deep); }
+
+        /* ==========================================================
+           BANNERS · ERRORS · FOOTER
+        ========================================================== */
+        .missing-banner {
+            max-width: 1160px; margin: 28px auto -18px; padding: 0 24px;
+        }
+        .missing-banner .inner {
+            background: var(--amber-bg); border: 1px solid var(--amber-line);
+            border-radius: var(--radius-md); padding: 16px 20px;
+            font-size: 14px; font-weight: 600; color: var(--amber-text); line-height: 1.6;
+            display: flex; gap: 10px; align-items: flex-start;
+        }
+
+        .error-panel {
+            max-width: 560px; margin: 48px auto 0; text-align: center;
+            background: #fff; border: 1px dashed #eec7ce; border-radius: var(--radius-lg);
+            padding: 44px 32px;
+        }
+        .error-panel h3 { margin: 0 0 8px; font-family: var(--serif); font-size: 22px; color: var(--ink); }
+        .error-panel p { margin: 0 0 22px; font-size: 14px; line-height: 1.7; color: var(--muted); }
+        .error-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+        .colophon {
+            max-width: 1160px; margin: 0 auto; padding: 0 24px 48px;
+            text-align: center; font-size: 11.5px; letter-spacing: 0.06em; color: #b5aea9;
+        }
+
+        /* ==========================================================
+           ARABIC / RTL MODE
+        ========================================================== */
+        [dir="rtl"] body, body.lang-ar { font-family: var(--arabic); }
+        body.lang-ar .hero-title, body.lang-ar .card-heading h2, body.lang-ar .recipe-head h2,
+        body.lang-ar .step-title, body.lang-ar .error-panel h3,
+        body.lang-ar #modalSteps h1, body.lang-ar #modalSteps h2, body.lang-ar #modalSteps h3, body.lang-ar #modalSteps h4,
+        body.lang-ar .steps-list li::before {
+            font-family: var(--arabic); font-style: normal; letter-spacing: 0;
+        }
+        body.lang-ar .eyebrow, body.lang-ar .chip-verified, body.lang-ar .source-tag,
+        body.lang-ar .glance h3, body.lang-ar .stat .k { letter-spacing: 0.06em; }
+        body.lang-ar { line-height: 1.75; }
+
+        /* ==========================================================
+           MOTION & PRINT
+        ========================================================== */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
+        @media print {
+            .topbar, .notice, .error-panel, .colophon, .missing-banner { display: none !important; }
+            body { background: #fff; }
+            .page-enter { animation: none; }
+            * { animation: none !important; }
+            .layout { display: block; padding: 24px 0; max-width: 100%; }
+            .side-card { position: static; box-shadow: none; margin-bottom: 28px; }
+            .hero-media { height: 320px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+         ICON SPRITE — same Lucide outline vocabulary as the dashboard
+         (bare geometry; stroke styling inherits from each wrapper).
+    ============================================================ -->
+    <svg xmlns="http://www.w3.org/2000/svg" class="hidden" aria-hidden="true">
+        <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></symbol>
+        <symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+        <symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+        <symbol id="i-alert-triangle" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    </svg>
+
+
+    <!-- ================= TOP BAR ================= -->
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a id="back-link" class="link-quiet" href="/#macros">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-arrow-left"/></svg>
+                <span class="lbl" data-i18n="back">Back to Results</span>
+            </a>
+            <div class="topbar-actions">
+                <span class="chip-verified"><span class="dot"></span><span data-i18n="verified">Prolog-verified meal</span></span>
+                <button id="lang-toggle" type="button" class="btn-ghost" aria-label="Switch language">
+                    <span aria-hidden="true">🌐</span><span class="globesep">&nbsp;</span><span id="lang-label">العربية</span>
+                </button>
+                <button id="print-btn" type="button" class="btn-pill">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-printer"/></svg>
+                    <span data-i18n="print">Print Recipe</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= MISSING-INGREDIENTS BANNER (partials) ================= -->
+    <div id="missing-banner" class="missing-banner hidden fade-in" role="alert">
+        <div class="inner"></div>
+    </div>
+
+    <!-- ================= HERO — edge-to-edge cover ================= -->
+    <section id="hero" class="hero" aria-busy="true">
+        <div class="hero-media">
+            <!-- Shimmering skeleton mimicking the final image -->
+            <div id="hero-skeleton" class="skel-hero"></div>
+            <!-- Real photograph -->
+            <img id="hero-image" alt="" src="" class="hidden" />
+            <!-- Elegant gradient fallback -->
+            <div id="hero-placeholder" class="hero-fallback">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11h17a7.5 7.5 0 0 1-7.5 7.5h-2A7.5 7.5 0 0 1 3.5 11z"/><path d="M7 8.5c0-1.6 1.2-1.6 1.2-3.2M11 8.5c0-1.6 1.2-1.6 1.2-3.2M15 8.5c0-1.6 1.2-1.6 1.2-3.2"/></svg>
+                <p data-i18n="photo_offline">?- photo unavailable offline.</p>
+            </div>
+        </div>
+        <div class="hero-overlay">
+            <div class="hero-caption">
+                <p class="eyebrow" data-i18n="eyebrow">Dynamically sourced recipe guide</p>
+                <h1 id="meal-title" class="hero-title">{{ meal_name }}</h1>
+                <div id="badges" class="hero-badges">
+                    <span id="time-badge" class="badge-glass">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-clock"/></svg>
+                        <span id="time-text">{{ prep_time }} min</span>
+                    </span>
+                    {% if calories %}
+                    <span class="badge-glass">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-flame"/></svg>
+                        {{ calories }} kcal / 100g
+                    </span>
+                    {% endif %}
+                    {% if carb_label %}
+                    <span id="carb-badge" class="badge-glass">{{ carb_label }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= EDITORIAL TWO-COLUMN LAYOUT ================= -->
+    <main class="page-enter">
+
+        <div class="layout">
+
+            <!-- Floating side card: ingredients + at-a-glance -->
+            <aside id="ingredients-panel" class="side-card" aria-busy="true">
+                <div class="card-heading">
+                    <h2><span data-i18n="ingredients">Ingredients</span></h2>
+                    <span id="ingredient-count" class="count-chip"></span>
+                </div>
+                <p class="card-sub" data-i18n="ing_sub">Chef-estimated measures, scaled per serving.</p>
+
+                <!-- Skeleton rows mimicking ingredient lines -->
+                <div id="ingredients-skeleton">
+                    <div class="skel-row"><div class="skel-bar" style="width:56%;height:15px"></div><div class="skel-bar" style="width:22%;height:15px;margin-inline-start:auto"></div></div>
+                    <div class="skel-row"><div class="skel-bar" style="width:42%;height:15px"></div><div class="skel-bar" style="width:26%;height:15px;margin-inline-start:auto"></div></div>
+                    <div class="skel-row"><div class="skel-bar" style="width:50%;height:15px"></div><div class="skel-bar" style="width:19%;height:15px;margin-inline-start:auto"></div></div>
+                    <div class="skel-row"><div class="skel-bar" style="width:38%;height:15px"></div><div class="skel-bar" style="width:30%;height:15px;margin-inline-start:auto"></div></div>
+                </div>
+                <ul id="ingredients-list" class="ing-list hidden"></ul>
+
+                <p class="card-footnote" data-i18n="ing_note">Season to taste and adjust portions to your plan — quantities are synthesized from ingredient type.</p>
+
+                <!-- At a glance + macros -->
+                <div class="glance">
+                    <h3 data-i18n="glance">At a glance</h3>
+                    <div class="glance-grid">
+                        <div class="stat"><span class="k" data-i18n="lbl_time">Time</span><span class="v" id="glance-time">{{ prep_time }}′</span></div>
+                        <div class="stat"><span class="k" data-i18n="lbl_kcal">Kcal</span><span class="v" id="glance-kcal">{% if calories %}{{ calories }}{% else %}—{% endif %}</span></div>
+                        <div class="stat"><span class="k" data-i18n="lbl_carbs">Carbs</span><span class="v" id="glance-carbs">{% if carb_label %}{{ carb_label }}{% else %}—{% endif %}</span></div>
+                    </div>
+                    <div id="macro-section" class="macro-wrap hidden">
+                        <div class="macro-track">
+                            <span id="seg-protein" class="macro-seg" style="background:#7c2035" title="Protein"></span>
+                            <span id="seg-carbs" class="macro-seg" style="background:#d9a13c" title="Carbs"></span>
+                            <span id="seg-fats" class="macro-seg" style="background:#3f6f8f" title="Fats"></span>
+                        </div>
+                        <div class="macro-legend">
+                            <span><span class="swatch" style="background:#7c2035"></span><span data-i18n="protein">Protein</span> <b id="val-protein">0g</b></span>
+                            <span><span class="swatch" style="background:#d9a13c"></span><span data-i18n="carbs_l">Carbs</span> <b id="val-carbs">0g</b></span>
+                            <span><span class="swatch" style="background:#3f6f8f"></span><span data-i18n="fats">Fats</span> <b id="val-fats">0g</b></span>
+                            <span style="margin-inline-start:auto;color:#b5aea9" id="macro-total"></span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main instructions column -->
+            <article id="steps-panel" aria-busy="true">
+                <div class="recipe-head">
+                    <h2><span data-i18n="steps">Preparation</span></h2>
+                    <span id="source-tag" class="source-tag hidden"></span>
+                </div>
+                <div class="rule" aria-hidden="true"></div>
+
+                <!-- Offline / degraded notice -->
+                <div id="steps-notice" class="notice hidden" ></div>
+
+                <!-- Shimmering skeleton mimicking editorial paragraphs -->
+                <div id="steps-skeleton">
+                    <div class="skel-row">
+                        <div class="skel-bar" style="width:44px;height:44px;border-radius:14px;flex-shrink:0"></div>
+                        <div style="flex:1">
+                            <div class="skel-bar" style="width:34%;height:17px;margin-bottom:12px"></div>
+                            <div class="skel-bar" style="width:100%;height:13px;margin-bottom:9px"></div>
+                            <div class="skel-bar" style="width:88%;height:13px"></div>
+                        </div>
+                    </div>
+                    <div class="skel-row">
+                        <div class="skel-bar" style="width:44px;height:44px;border-radius:14px;flex-shrink:0"></div>
+                        <div style="flex:1">
+                            <div class="skel-bar" style="width:26%;height:17px;margin-bottom:12px"></div>
+                            <div class="skel-bar" style="width:96%;height:13px;margin-bottom:9px"></div>
+                            <div class="skel-bar" style="width:72%;height:13px"></div>
+                        </div>
+                    </div>
+                    <div class="skel-row">
+                        <div class="skel-bar" style="width:44px;height:44px;border-radius:14px;flex-shrink:0"></div>
+                        <div style="flex:1">
+                            <div class="skel-bar" style="width:40%;height:17px;margin-bottom:12px"></div>
+                            <div class="skel-bar" style="width:92%;height:13px;margin-bottom:9px"></div>
+                            <div class="skel-bar" style="width:64%;height:13px"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Structured steps (verified / engine guide) -->
+                <ol id="steps-list" class="steps-list hidden"></ol>
+
+                <!-- AI-injected rich HTML (targeted by #modalSteps rules) -->
+                <div id="modalSteps" class="hidden"></div>
+            </article>
+        </div>
+
+        <!-- Error / retry -->
+        <div id="error-panel" class="error-panel hidden" role="alert">
+            <h3 data-i18n="err_title">Live recipe lookup unavailable</h3>
+            <p id="error-message"></p>
+            <div class="error-actions">
+                <button id="retry-btn" type="button" class="btn-pill" data-i18n="retry">Retry lookup</button>
+                <a href="/#macros" class="btn-ghost" data-i18n="back_dash">Back to dashboard</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p class="colophon" data-i18n="foot">Photos via TheMealDB &amp; Pollinations AI · recipes synthesized Michelin-grade.</p>
+    </footer>
+
+    <!-- Server-rendered bootstrap data (fallback when storage is empty,
+         e.g. shared links or refreshed tabs). tojson = safe JS embedding. -->
+    <script>
+        window.__RECIPE__ = {
+            mealName: {{ meal_name | tojson }},
+            ingredients: {{ ingredients | tojson }},
+            time: {{ prep_time | tojson }},
+            calories: {{ calories | tojson }},
+            carbLabel: {{ carb_label | tojson }},
+            details: {{ recipe_data | tojson }}
+        };
+    </script>
+
+    <script>
+        (function () {
+            'use strict';
+
+            var CACHE_TTL = 24 * 60 * 60 * 1000;
+            var MEAL_DB = 'https://www.themealdb.com/api/json/v1/1/search.php?s=';
+            var POLLINATIONS_IMG = 'https://image.pollinations.ai/prompt/';
+
+            var state = {
+                mealName: window.__RECIPE__.mealName || 'Unknown Meal',
+                ingredients: window.__RECIPE__.ingredients || '',
+                time: parseInt(window.__RECIPE__.time, 10) || 30,
+                macros: null,
+                missing: [],
+                keyword: '',
+                lang: 'en',
+                mode: 'idle', // 'verified' | 'ai' | 'local'
+                details: window.__RECIPE__.details || null
+            };
+
+            // Use server-provided details if available
+            if (state.details) {
+                if (state.details.macros) state.macros = state.details.macros;
+                if (state.details.total_time_minutes) state.time = state.details.total_time_minutes;
+            }
+
+            // ==========================================================
+            // I18N DICTIONARY
+            // ==========================================================
+            var STRINGS = {
+                en: {
+                    back: 'Back to Results', print: 'Print Recipe', verified: 'Prolog-verified meal',
+                    eyebrow: 'Dynamically sourced recipe guide', photo_offline: '?- photo unavailable offline.',
+                    ingredients: 'Ingredients', ing_sub: 'Chef-estimated measures, scaled per serving.',
+                    ing_note: 'Season to taste and adjust portions to your plan — quantities are synthesized from ingredient type.',
+                    items: 'items', glance: 'At a glance', lbl_time: 'Time', lbl_kcal: 'Kcal', lbl_carbs: 'Carbs',
+                    min: 'min', protein: 'Protein', carbs_l: 'Carbs', fats: 'Fats',
+                    steps: 'Preparation', src_mealdb: 'Verified recipe · TheMealDB', src_ai: 'Chef-curated · AI synthesis', src_local: 'Kitchen-engine guide',
+                    banner_pre: 'Almost there — you are missing', banner_count: 'ingredient(s)', banner_post: 'Grab them and re-synthesize on the dashboard.',
+                    offline_notice: 'You appear to be offline — showing the kitchen-engine guide built from your pantry data.',
+                    fail_notice: 'Live synthesis unavailable — showing the kitchen-engine guide instead. Hit retry for the full chef’s recipe.',
+                    err_title: 'Live recipe lookup unavailable',
+                    err_offline: 'No internet connection detected. A generated guide is shown below — reconnect and retry to fetch the full chef’s recipe and photography.',
+                    err_http: 'Could not reach the recipe services', err_http_tail: 'A generated guide is shown below — retry for the full experience.',
+                    retry: 'Retry lookup', back_dash: 'Back to dashboard',
+                    foot: 'Photos via TheMealDB & Pollinations AI · recipes synthesized Michelin-grade.'
+                },
+                ar: {
+                    back: 'عودة إلى النتائج', print: 'اطبع الوصفة', verified: 'وجبة موثقة من البرولوغ',
+                    eyebrow: 'دليل وصفات مُولَّد ديناميكياً', photo_offline: '؟- الصورة غير متاحة دون اتصال.',
+                    ingredients: 'المكونات', ing_sub: 'مقادير تقديرية بمعايير الطهاة، لكل حصة.',
+                    ing_note: 'تبّل حسب الذوق وعدّل الكميات خطتك — المقادير مُستنتجة من نوع كل مكوّن.',
+                    items: 'عنصر', glance: 'نظرة سريعة', lbl_time: 'الوقت', lbl_kcal: 'سعرة', lbl_carbs: 'كربوهيدرات',
+                    min: 'دقيقة', protein: 'بروتين', carbs_l: 'كربوهيدرات', fats: 'دهون',
+                    steps: 'طريقة التحضير', src_mealdb: 'وصفة موثقة · TheMealDB', src_ai: 'منسّق من طهارة · توليد ذكي', src_local: 'دليل محرك المطبخ',
+                    banner_pre: 'اقتربت — تنقصك', banner_count: 'مكوّن/مكونات', banner_post: 'احصل عليها وأعد التوليد من لوحة التحكم.',
+                    offline_notice: 'أنت غير متصل بالإنترنت — نعرض دليل محرك المطبخ المبني على بيانات مخزنك.',
+                    fail_notice: 'تعذّر التوليد الحي — نعرض دليل محرك المطبخ بدلاً منه. أعد المحاولة للحصول على وصفة الطاهي كاملة.',
+                    err_title: 'تعذّر جلب الوصفة الحية',
+                    err_offline: 'لا يوجد اتصال بالإنترنت. يظهر أدناه دليل مُولَّد — أعِد الاتصال وحاول مجدداً لجلب وصفة الطاهي والصور كاملة.',
+                    err_http: 'تعذّر الوصول إلى خدمات الوصفات', err_http_tail: 'يظهر أدناه دليل مُولَّد — أعد المحاولة للتجربة الكاملة.',
+                    retry: 'إعادة المحاولة', back_dash: 'عودة إلى اللوحة',
+                    foot: 'الصور عبر TheMealDB و Pollinations AI · وصفات بتوليد بمستوى الميشلان.'
+                }
+            };
+            function t(key) {
+                return (STRINGS[state.lang] && STRINGS[state.lang][key]) || STRINGS.en[key] || key;
+            }
+
+            // ---- Storage helpers (all fail-safe) ------------------------
+            function slugify(s) {
+                return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+            }
+            function readSessionPayload() {
+                try {
+                    var raw = sessionStorage.getItem('recipe_payload');
+                    return raw ? JSON.parse(raw) : null;
+                } catch (e) { return null; }
+            }
+            function readLocalMeal(slug) {
+                try {
+                    var raw = localStorage.getItem('recipe_meal_' + slug);
+                    if (!raw) return null;
+                    var obj = JSON.parse(raw);
+                    if (!obj || Date.now() - obj.ts > 60 * 60 * 1000) return null;
+                    return obj.meal;
+                } catch (e) { return null; }
+            }
+            function cacheKey(kw) {
+                return 'recipe_v2_' + String(kw).toLowerCase().replace(/[^a-z0-9]+/g, '_');
+            }
+            function readApiCache(kw) {
+                try {
+                    var raw = localStorage.getItem(cacheKey(kw));
+                    if (!raw) return null;
+                    var obj = JSON.parse(raw);
+                    if (!obj || Date.now() - obj.ts > CACHE_TTL) {
+                        localStorage.removeItem(cacheKey(kw));
+                        return null;
+                    }
+                    return obj.data;
+                } catch (e) { return null; }
+            }
+            function writeApiCache(kw, data) {
+                try { localStorage.setItem(cacheKey(kw), JSON.stringify({ ts: Date.now(), data: data })); }
+                catch (e) { /* best-effort */ }
+            }
+
+            // ==========================================================
+            // PROFESSIONAL MEASUREMENT SYNTHESIS (bilingual)
+            // Maps generic Prolog atoms to chef-standard quantities.
+            // Ordered most-specific first. [regex, en, ar]
+            // ==========================================================
+            var MEASURE_RULES = [
+                [/olive[_\s]?oil|sunflower[_\s]?oil|corn[_\s]?oil|walnut[_\s]?oil|\boil\b/, '2 tbsp, extra virgin', 'ملعقتان كبيرتان، زيت بكر'],
+                [/\bghee\b/, '1½ tbsp', 'ملعقة ونصف كبيرة'],
+                [/\bbutter\b/, '30 g, cubed', '30 جم، مكعبات'],
+                [/garlic/, '3 cloves, minced', '3 فصوص، مفروم'],
+                [/shallot|onion|leek/, '1 large, finely diced', 'حبة كبيرة، مفرومة ناعماً'],
+                [/ginger/, '2 cm piece, grated', 'قطعة 2 سم، مبشورة'],
+                [/chili|chilli/, '1, finely sliced', 'حبة، شرائح رفيعة'],
+                [/black[_\s]?pepper|peppercorn/, '½ tsp, freshly ground', 'نصف ملعقة صغيرة، مطحونة طازجاً'],
+                [/bell[_\s]?pepper/, '1 large, julienned', 'حبة كبيرة، شرائح طويلة'],
+                [/\bpepper\b/, '1 large, sliced', 'حبة كبيرة، شرائح'],
+                [/parsley|cilantro|coriander|basil|dill|mint|rosemary|thyme|herb|arugula|rocket/, 'a generous handful, chopped', 'حفنة سخية، مفرومة'],
+                [/salt|seasoning/, 'to taste', 'حسب الذوق'],
+                [/pasta|spaghetti|noodle|macaroni/, '200 g', '200 جم'],
+                [/rice|quinoa|couscous|bulgur|barley/, '180 g (1 cup)', '180 جم (كوب)'],
+                [/bread[_\s]?crumb|panko|\bbread\b/, '60 g', '60 جم'],
+                [/flying[_\s]?fish[_\s]?roe|\broe\b|caviar/, '1 tbsp', 'ملعقة كبيرة'],
+                [/salmon|tuna|turbot|cod|haddock|flatfish|trout|fillet/, '2 fillets (≈250 g), skin-on', 'فيليه (≈250 جم)'],
+                [/shrimp|prawn|crawfish|langoustin/, '300 g, peeled & deveined', '300 جم، منظّف'],
+                [/calamari|squid|cuttlefish|octopus/, '300 g, cleaned & scored', '300 جم، منظّف ومُشطرّج'],
+                [/scallop/, '8 large scallops', '8 حبات كبيرة'],
+                [/oyster|mussel|clam|conch|abalone/, '500 g, scrubbed', '500 جم، منظّف'],
+                [/crab/, '400 g picked meat', '400 جم لحم منتقى'],
+                [/\begg\b|eggs/, '3 large, free-range', '3 حبات كبيرة'],
+                [/beef|lamb|goat|rabbit|veal|mutton|steak|mince/, '250 g, room temperature', '250 جم، بحرارة الغرفة'],
+                [/chicken|turkey|duck/, '2 breasts (≈300 g)', 'صدران (≈300 جم)'],
+                [/buttermilk/, '200 ml', '200 مل'],
+                [/\bmilk\b/, '200 ml, warmed', '200 مل، دافئ'],
+                [/kefir/, '250 ml', '250 مل'],
+                [/yogurt|yoghurt|sour[_\s]?cream|labneh/, '150 g', '150 جم'],
+                [/cream|cr[eè]me/, '100 ml', '100 مل'],
+                [/cheese|parmesan|feta|mozzarella/, '80 g, grated', '80 جم، مبشور'],
+                [/tomato/, '3 medium, diced', '3 حبات متوسطة، مكعبات'],
+                [/sweet[_\s]?potato|potato/, '2 medium, cubed', 'حبتان متوسطتان، مكعبات'],
+                [/carrot|zucchini|courgette|aubergine|eggplant|turnip|beet|radish|cucumber|pumpkin|squash/, '1 large, sliced', 'حبة كبيرة، شرائح'],
+                [/spinach|kale|lettuce|chard|greens|cabbage/, '2 cups, roughly chopped', 'كوبان، مفروم خشناً'],
+                [/celery/, '2 stalks, diced', 'سيقان، مكعبات'],
+                [/peas|green[_\s]?beans|lentil|chickpea|\bbean\b/, '150 g', '150 جم'],
+                [/lemon|lime/, '1, juiced & zested', 'حبة، عصر وقشر'],
+                [/stock|broth|wine/, '250 ml', '250 مل'],
+                [/vinegar|soy|sauce|paste|mustard|tahini|hummus/, '1 tbsp', 'ملعقة كبيرة'],
+                [/almond|walnut|cashew|pine[_\s]?nut|\bnut\b/, '40 g, toasted', '40 جم، محمّص'],
+                [/flour|starch|semolina|polenta/, '120 g', '120 جم'],
+                [/sugar|honey|maple|syrup/, '1 tbsp', 'ملعقة كبيرة']
+            ];
+
+            function generateMeasurements(ingredientsArray) {
+                var fallback = state.lang === 'ar' ? 'حسب الذوق' : 'to taste';
+                return (ingredientsArray || []).map(function (raw) {
+                    var k = String(raw).toLowerCase().trim();
+                    var measure = fallback;
+                    for (var i = 0; i < MEASURE_RULES.length; i++) {
+                        if (MEASURE_RULES[i][0].test(k)) { measure = state.lang === 'ar' ? MEASURE_RULES[i][2] : MEASURE_RULES[i][1]; break; }
+                    }
+                    return { raw: raw, measure: measure };
+                });
+            }
+
+            // ---- DOM shortcuts -------------------------------------------
+            function $(id) { return document.getElementById(id); }
+            var els = {};
+
+            document.addEventListener('DOMContentLoaded', init);
+
+            function init() {
+                els.heroSection = $('hero');
+                els.heroSkeleton = $('hero-skeleton');
+                els.heroImage = $('hero-image');
+                els.heroPlaceholder = $('hero-placeholder');
+                els.title = $('meal-title');
+                els.timeText = $('time-text');
+                els.missingBanner = $('missing-banner');
+                els.ingredientsSkeleton = $('ingredients-skeleton');
+                els.ingredientsList = $('ingredients-list');
+                els.ingredientCount = $('ingredient-count');
+                els.glanceTime = $('glance-time');
+                els.macroSection = $('macro-section');
+                els.stepsSkeleton = $('steps-skeleton');
+                els.stepsPanel = $('steps-panel');
+                els.stepsList = $('steps-list');
+                els.modalSteps = $('modalSteps');
+                els.sourceTag = $('source-tag');
+                els.notice = $('steps-notice');
+                els.errorPanel = $('error-panel');
+                els.errorMessage = $('error-message');
+                els.langToggle = $('lang-toggle');
+                els.langLabel = $('lang-label');
+
+                // Restore language preference before first paint of texts.
+                try { state.lang = localStorage.getItem('recipe_lang') === 'ar' ? 'ar' : 'en'; } catch (e) {}
+
+                // Data priority: sessionStorage payload → localStorage copy → URL params.
+                var payload = readSessionPayload() || readLocalMeal(slugify(state.mealName));
+                if (payload) hydrateFromMeal(payload);
+
+                applyLanguage(false); // dir + fonts + all static strings
+                renderDynamicDefaults();
+
+                $('print-btn').addEventListener('click', function () { window.print(); });
+                $('retry-btn').addEventListener('click', loadExternalRecipe);
+                els.langToggle.addEventListener('click', function () { setLang(state.lang === 'ar' ? 'en' : 'ar'); });
+
+                var backLink = $('back-link');
+                backLink.addEventListener('click', function (ev) {
+                    if (document.referrer && document.referrer.indexOf(location.host) !== -1 && history.length > 1) {
+                        ev.preventDefault();
+                        history.back();
+                    }
+                });
+
+                loadExternalRecipe();
+            }
+
+            function hydrateFromMeal(meal) {
+                state.mealName = meal.meal || state.mealName;
+                state.ingredients = meal.ingredients || state.ingredients;
+                state.time = parseInt(meal.time, 10) || state.time;
+                state.macros = meal.macros || null;
+                state.missing = meal.missing || [];
+            }
+
+            // ==========================================================
+            // LANGUAGE SYSTEM — RTL switch, fonts, full string swap
+            // ==========================================================
+            function setLang(code) {
+                if (state.lang === code) return;
+                state.lang = code;
+                try { localStorage.setItem('recipe_lang', code); } catch (e) {}
+                applyLanguage(true);
+            }
+
+            function applyLanguage(reRenderComponents) {
+                var isAr = state.lang === 'ar';
+                document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+                document.documentElement.lang = state.lang;
+                document.body.classList.toggle('lang-ar', isAr);
+                els.langLabel.textContent = isAr ? 'English' : 'العربية';
+
+                // Static string swap
+                document.querySelectorAll('[data-i18n]').forEach(function (el) {
+                    var key = el.dataset.i18n;
+                    el.textContent = t(key);
+                });
+
+                if (reRenderComponents) {
+                    renderDynamicDefaults();
+                    renderIngredients(generateMeasurements(ingredientArray()));
+                    renderMissingBanner();
+                    renderMacros();
+                    // If we already have a loaded recipe, re-jig the source tag and the steps
+                    if (state.mode === 'verified' || state.mode === 'ai') {
+                        loadExternalRecipe(); // Re-fetch or pull from cache with new prompt
+                    } else if (state.mode === 'local') {
+                        applyLocalGuide();
+                    }
+                }
+            }
+
+            // ==========================================================
+            // COMPONENT RENDERING
+            // ==========================================================
+            function renderDynamicDefaults() {
+                els.title.textContent = state.mealName;
+                els.timeText.textContent = state.time + ' ' + t('min');
+                els.glanceTime.textContent = state.time + '′';
+
+                // Update glance data from server-provided details
+                if (state.details) {
+                    var glanceKcal = $('glance-kcal');
+                    var glanceCarbs = $('glance-carbs');
+                    if (glanceKcal && state.details.macros) {
+                        glanceKcal.textContent = (state.details.macros.calories || '—') + ' kcal';
+                    }
+                    if (glanceCarbs && state.details.macros) {
+                        glanceCarbs.textContent = (state.details.macros.carbs || '—') + ' g';
+                    }
+                    // Update dietary tag badge
+                    var carbBadge = $('carb-badge');
+                    if (carbBadge && state.details.dietary_tag) {
+                        carbBadge.textContent = state.details.dietary_tag;
+                        carbBadge.classList.toggle('keto', /keto/i.test(state.details.dietary_tag));
+                    }
+                } else {
+                    var carbBadge = $('carb-badge');
+                    if (carbBadge) {
+                        var isKeto = /keto/i.test(carbBadge.textContent);
+                        carbBadge.classList.toggle('keto', isKeto);
+                    }
+                }
+            }
+
+            function ingredientArray() {
+                return String(state.ingredients).split(',')
+                    .map(function (s) { return s.trim(); })
+                    .filter(Boolean);
+            }
+
+            function renderIngredients(measured) {
+                els.ingredientsSkeleton.classList.add('hidden');
+                els.ingredientsList.classList.remove('hidden');
+                els.ingredientsList.innerHTML = '';
+
+                measured.forEach(function (ing, i) {
+                    var li = document.createElement('li');
+                    li.className = 'ing-row fade-in';
+                    li.style.animationDelay = (i * 0.05) + 's';
+
+                    var nameSide = document.createElement('div');
+                    nameSide.className = 'ing-name';
+                    nameSide.innerHTML = '<span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>';
+                    var nm = document.createElement('span');
+                    nm.className = 'nm';
+                    nm.textContent = ing.raw.replace(/_/g, ' ');
+                    nameSide.appendChild(nm);
+
+                    var pill = document.createElement('span');
+                    pill.className = 'measure-pill';
+                    pill.textContent = ing.measure;
+
+                    li.appendChild(nameSide);
+                    li.appendChild(pill);
+                    els.ingredientsList.appendChild(li);
+                });
+                els.ingredientCount.textContent = measured.length + ' ' + t('items');
+            }
+
+            function renderMissingBanner() {
+                if (!state.missing.length) {
+                    els.missingBanner.classList.add('hidden');
+                    return;
+                }
+                els.missingBanner.classList.remove('hidden');
+                var inner = els.missingBanner.querySelector('.inner');
+                inner.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>';
+                var txt = document.createElement('span');
+                txt.textContent = t('banner_pre') + ' ' + state.missing.length + ' ' + t('banner_count') + ': ' +
+                    state.missing.join(', ') + '. ' + t('banner_post');
+                inner.appendChild(txt);
+            }
+
+            function renderMacros() {
+                var m = state.macros;
+                if (!m) {
+                    els.macroSection.classList.add('hidden');
+                    return;
+                }
+                var p = +m.protein || 0, c = +m.carbs || 0, f = +m.fats || 0;
+                var total = p + c + f;
+                if (!total) {
+                    els.macroSection.classList.add('hidden');
+                    return;
+                }
+                els.macroSection.classList.remove('hidden');
+                $('macro-total').textContent = total + 'g total';
+                $('val-protein').textContent = p + 'g';
+                $('val-carbs').textContent = c + 'g';
+                $('val-fats').textContent = f + 'g';
+
+                requestAnimationFrame(function () {
+                    setTimeout(function () {
+                        $('seg-protein').style.width = Math.round(p / total * 100) + '%';
+                        $('seg-carbs').style.width = Math.round(c / total * 100) + '%';
+                        $('seg-fats').style.width = Math.round(f / total * 100) + '%';
+                    }, 100);
+                });
+            }
+
+            function cleanKeyword(name) {
+                var words = String(name).replace(/[^a-zA-Z ]/g, ' ').trim().split(/\s+/).filter(Boolean);
+                return words.slice(0, 3).join(' ') || 'food';
+            }
+
+            async function searchMealDb(query) {
+                var res = await fetch(MEAL_DB + encodeURIComponent(query));
+                if (!res.ok) throw new Error('TheMealDB HTTP ' + res.status);
+                var json = await res.json();
+                return (json && Array.isArray(json.meals)) ? json.meals[0] : null;
+            }
+
+            function parseInstructions(text) {
+                var paras = String(text).split(/\r?\n+/)
+                    .map(function (s) { return s.trim().replace(/\*/g, ''); })
+                    .filter(Boolean);
+                if (paras.length <= 1) {
+                    var sentences = String(text).match(/[^.!?]+[.!?]+["']?\s*/g) || [];
+                    paras = sentences.map(function (s) { return s.trim(); }).filter(Boolean);
+                    var merged = [], chunkSize = Math.max(1, Math.ceil(paras.length / 6));
+                    for (var i = 0; i < paras.length; i += chunkSize) merged.push(paras.slice(i, i + chunkSize).join(' '));
+                    paras = merged;
+                }
+                return paras.slice(0, 14);
+            }
+
+            // Guaranteed professional photo for EVERY meal.
+            function pollinationsUrl() {
+                var prompt = 'Professional culinary photography of ' + state.mealName +
+                    ' plated beautifully in a restaurant';
+                return POLLINATIONS_IMG + encodeURIComponent(prompt) + '?width=800&height=600&nologo=true';
+            }
+
+            // Whitelist sanitizer: AI output is third-party HTML — every node
+            // is re-created WITHOUT attributes before insertion (XSS-safe).
+            var RICH_ALLOWED = { H1: 1, H2: 1, H3: 1, H4: 1, H5: 1, H6: 1, P: 1, UL: 1, OL: 1, LI: 1, STRONG: 1, B: 1, EM: 1, I: 1, U: 1, BR: 1, BLOCKQUOTE: 1, SPAN: 1, DIV: 1 };
+            function sanitizeRichHTML(html) {
+                var doc = new DOMParser().parseFromString(String(html), 'text/html');
+                var out = document.createElement('div');
+                (function walk(srcEl, dstParent) {
+                    Array.prototype.forEach.call(srcEl.childNodes, function (node) {
+                        if (node.nodeType === Node.TEXT_NODE) {
+                            dstParent.appendChild(document.createTextNode(node.nodeValue));
+                        } else if (node.nodeType !== Node.ELEMENT_NODE) {
+                            /* skip comments */
+                        } else if (RICH_ALLOWED[node.tagName]) {
+                            var el = document.createElement(node.tagName);
+                            walk(node, el); // attributes intentionally dropped
+                            dstParent.appendChild(el);
+                        } else {
+                            walk(node, dstParent); // unwrap disallowed tags
+                        }
+                    });
+                })(doc.body, out);
+                return out;
+            }
+
+            function staggerRich(container) {
+                var kids = container.querySelectorAll('li, p, h1, h2, h3, h4');
+                Array.prototype.forEach.call(kids, function (el, i) {
+                    el.classList.add('step-in');
+                    el.style.animationDelay = Math.min(i * 70, 1800) + 'ms';
+                });
+            }
+
+            function finishStepsLoading() {
+                els.stepsSkeleton.classList.add('hidden');
+                els.stepsPanel.setAttribute('aria-busy', 'false');
+            }
+
+            async function loadExternalRecipe() {
+                els.errorPanel.classList.add('hidden');
+                els.notice.classList.add('hidden');
+                state.keyword = cleanKeyword(state.mealName);
+
+                // 0) Use server-provided details if available (local image + recipe data)
+                if (state.details && state.details.image) {
+                    var localImg = state.details.image;
+                    if (localImg && localImg.indexOf('/static/') === 0) {
+                        setImage(localImg, state.mealName, false);
+                    } else if (localImg) {
+                        setImage(localImg, state.mealName, true);
+                    }
+                    // Use server-provided steps if available
+                    if (state.details.steps && state.details.steps.length > 0) {
+                        var serverSteps = state.details.steps.map(function(s) {
+                            return {
+                                title: (s.step_number || '') + '. ' + (s.instruction || ''),
+                                body: s.duration_minutes ? s.duration_minutes + ' min' : ''
+                            };
+                        });
+                        finishStepsLoading();
+                        renderSteps(serverSteps);
+                        state.mode = 'local';
+                        els.sourceTag.textContent = 'Recipe from Knowledge Base';
+                        els.sourceTag.classList.remove('hidden');
+                    }
+                    // Use server-provided ingredients if available
+                    if (state.details.ingredients && state.details.ingredients.length > 0) {
+                        // Update the ingredient display with metric weights
+                        var ingPanel = els.ingPanel || document.querySelector('.ing-panel');
+                        if (ingPanel) {
+                            var ingHtml = '<h3>' + t('ingredients') + '</h3><p class="ing-sub">' + (t('ing_sub') || 'Ingredient quantities per serving.') + '</p><ul class="ing-list">';
+                            state.details.ingredients.forEach(function(ing) {
+                                var name = ing.ingredient || ing;
+                                var amount = ing.amount ? ing.amount + ' ' + (ing.unit || 'g') : '';
+                                ingHtml += '<li class="ing-item">' + (amount ? '<strong>' + amount + '</strong> ' : '') + name + '</li>';
+                            });
+                            ingHtml += '</ul>';
+                            ingPanel.innerHTML = ingHtml;
+                        }
+                    }
+                    return;
+                }
+
+                var cached = readApiCache(state.keyword);
+
+                // 1) Verified MealDB hit (cached → instant).
+                if (cached && cached.found) { applyVerified(cached); return; }
+
+                // 2) Cached AI recipe in the ACTIVE language (works offline too).
+                if (cached && cached.aiHtml && cached.lang === state.lang) {
+                    setImage(pollinationsUrl(), '', false);
+                    applyAiRecipe(cached.aiHtml);
+                    return;
+                }
+
+                // 3) Fully offline → kitchen-engine guide from pantry data.
+                if (!navigator.onLine) {
+                    showNotice(t('offline_notice'));
+                    usePlaceholder();
+                    applyLocalGuide();
+                    return;
+                }
+
+                try {
+                    var hit = await searchMealDb(state.keyword);
+                    if (!hit && state.keyword.indexOf(' ') !== -1) {
+                        hit = await searchMealDb(state.keyword.split(/\s+/)[0]);
+                    }
+
+                    if (hit) {
+                        var data = {
+                            found: true,
+                            img: hit.strMealThumb || '',
+                            title: hit.strMeal || state.mealName,
+                            steps: parseInstructions(hit.strInstructions || '')
+                        };
+                        writeApiCache(state.keyword, data);
+                        applyVerified(data);
+                        return;
+                    }
+
+                    // 4) No MealDB recipe → live AI synthesis in active language.
+                    setImage(pollinationsUrl(), '', false);
+                    var aiRaw = await fetchAiRecipe();
+                    writeApiCache(state.keyword, { found: false, aiHtml: aiRaw, lang: state.lang });
+                    applyAiRecipe(aiRaw);
+                } catch (err) {
+                    console.warn('Recipe lookup failed:', err);
+                    showNotice(t('fail_notice'));
+                    showErrorPanel(err);
+                    setImage(pollinationsUrl(), '', false);
+                    applyLocalGuide();
+                }
+            }
+
+            async function fetchAiRecipe() {
+                const mealName = state.mealName;
+                const ingredientList = ingredientArray();
+                const promptText = state.lang === 'ar'
+                    ? `اكتب وصفة طبخ احترافية جداً، بخطوات مفصلة ومقادير دقيقة لأكلة ${mealName} باستخدام هذه المكونات فقط: ${ingredientList.join(', ')}. نسق الإجابة باستخدام علامات HTML مثل <h3> و <ul>.`
+                    : `Act as a Michelin-star chef. Write a professional, mouth-watering recipe for ${mealName} using ONLY these ingredients: ${ingredientList.join(', ')}. Include realistic professional measurements, preparation techniques (like deglazing, searing, etc.), and step-by-step instructions. Format it beautifully in HTML with <h3> and <ul>/<li> tags.`;
+                const textResponse = await fetch('https://text.pollinations.ai/prompt/' + encodeURIComponent(promptText));
+                if (!textResponse.ok) throw new Error('Pollinations HTTP ' + textResponse.status);
+                const raw = await textResponse.text();
+                if (!raw || String(raw).trim().length < 120) throw new Error('Empty AI response');
+                return String(raw);
+            }
+
+            function showNotice(text) {
+                els.notice.textContent = text;
+                els.notice.classList.remove('hidden');
+            }
+
+            function showErrorPanel(err) {
+                var offline = !navigator.onLine;
+                var httpErr = err && err.message && err.message.indexOf('HTTP') !== -1;
+                if (!offline && !httpErr) return;
+                els.errorMessage.textContent = offline
+                    ? t('err_offline')
+                    : t('err_http') + ' (' + err.message + '). ' + t('err_http_tail');
+                els.errorPanel.classList.remove('hidden');
+                els.errorPanel.classList.add('fade-in');
+            }
+
+            // ---- Apply: verified TheMealDB recipe --------------------------
+            function applyVerified(data) {
+                state.mode = 'verified';
+                els.sourceTag.textContent = t('src_mealdb');
+                els.sourceTag.classList.remove('hidden');
+
+                if (data.title && data.title.length <= 60) els.title.textContent = data.title;
+
+                setImage(data.img, data.title || state.mealName, true);
+
+                finishStepsLoading();
+                els.modalSteps.classList.add('hidden');
+                renderSteps(data.steps.map(function (text) { return { title: '', body: text }; }));
+            }
+
+            // ---- Apply: AI-generated rich HTML recipe ------------------------
+            function applyAiRecipe(rawHtml) {
+                state.mode = 'ai';
+                els.sourceTag.textContent = t('src_ai');
+                els.sourceTag.classList.remove('hidden');
+
+                finishStepsLoading();
+                els.stepsList.classList.add('hidden');
+                els.modalSteps.innerHTML = '';
+                els.modalSteps.appendChild(sanitizeRichHTML(rawHtml));
+                els.modalSteps.classList.remove('hidden');
+                els.modalSteps.classList.add('fade-in');
+                staggerRich(els.modalSteps);
+            }
+
+            // ---- Apply: local kitchen-engine guide (last resort) --------------
+            function buildLocalGuide(measured) {
+                var ar = state.lang === 'ar';
+                var tm = Math.max(state.time, 10);
+                var prep = Math.max(Math.round(tm * 0.25), 2);
+                var heat = Math.max(Math.round(tm * 0.15), 3);
+                var cook = Math.max(tm - prep - heat, 3);
+
+                var mise = measured.map(function (m) {
+                    return ar ? (m.measure + ' ' + m.raw) : (m.measure + ' ' + String(m.raw).toLowerCase());
+                }).join(ar ? '؛ ' : '; ');
+                var stars = measured.slice(0, 2).map(function (m) { return m.measure + ' ' + m.raw; }).join(ar ? ' و' : ' and ') ||
+                    (ar ? 'المكونات الأساسية' : 'the core ingredients');
+                var minsSuffix = function (n) { return ar ? ('— حوالي ' + n + ' دقيقة') : ('— approx. ' + n + ' min'); };
+
+                if (ar) {
+                    return [
+                        { title: 'التحضير ' + minsSuffix(prep), body: 'جهّز محطتك كمحترفين: ' + mise + '. جفّف البروتينات جيداً لتحقيق قشرة ذهبية مثالية، وأخرج الألبان من الثلاجة مسبقاً، وأبقِ كل شيء في متناول يدك.' },
+                        { title: 'بناء القاعدة ' + minsSuffix(heat), body: 'سخّن مقلاة ثقيلة القاع على نار متوسطة-عالية حتى تلمع، ثم أضف النكهات الأساسية. حمّر ' + stars + ' دون تحريك لتكوين قشرة ذهبية عميقة — هنا تكمن سر النكهة.' },
+                        { title: 'الطبخ والمزج ' + minsSuffix(cook), body: 'زيّق المقلاة بقليل من المرق، أضف بقية المكونات، وخفّض النار إلى غليان هادئ. تبّل على مراحل مع التذوق حتى تتكاثف الصلصة وتغلف ظهر الملعقة.' },
+                        { title: 'الراحة والتقديم', body: 'اتركه يرتاح قليلاً، ثم قدّمه بإتقان: ارتفاعات متناغمة وتباين في الألوان ولمسة أخيرة من الفلفل الأسود الطازج وزيت الزيتون الفاخر. قدّمه فوراً وهو في ذروة عطره.' }
+                    ];
+                }
+                return [
+                    { title: 'Mise en Place ' + minsSuffix(prep), body: 'Prepare your station like a professional: ' + mise + '. Pat proteins dry for a superior sear, bring dairy to room temperature, and keep everything within arm’s reach.' },
+                    { title: 'Build the Base ' + minsSuffix(heat), body: 'Heat a heavy-bottomed pan over medium-high until it shimmers, then sweat your aromatics. Sear ' + stars + ' undisturbed to build a deep golden crust — this fond is where the flavour lives.' },
+                    { title: 'Cook & Combine ' + minsSuffix(cook), body: 'Deglaze with a splash of stock, fold in the remaining components, and reduce to a gentle simmer. Season in layers, tasting as you go, until the sauce clings to the back of a spoon.' },
+                    { title: 'Rest & Plate', body: 'Rest briefly, then plate with intention: height, contrast, and a final flourish of cracked pepper and your finest olive oil. Serve immediately while the aromatics are at their peak.' }
+                ];
+            }
+
+            function applyLocalGuide() {
+                state.mode = 'local';
+                els.sourceTag.textContent = t('src_local');
+                els.sourceTag.classList.remove('hidden');
+
+                var measured = generateMeasurements(ingredientArray());
+                finishStepsLoading();
+                els.modalSteps.classList.add('hidden');
+                renderSteps(buildLocalGuide(measured));
+            }
+
+            // ---- Image handling: skeleton → cinematic zoom-out reveal --------
+            function setImage(src, alt, fallbackToGenerated) {
+                if (!src) src = pollinationsUrl(); // guarantee an attempt
+                var triedGenerated = !fallbackToGenerated;
+
+                els.heroImage.onerror = function () {
+                    if (!triedGenerated) {
+                        triedGenerated = true;
+                        els.heroImage.src = pollinationsUrl(); // AI generation fallback
+                    } else {
+                        usePlaceholder(); // everything failed → elegant gradient
+                    }
+                };
+                els.heroImage.onload = function () {
+                    els.heroSkeleton.classList.add('hidden');
+                    els.heroPlaceholder.classList.remove('show');
+                    els.heroImage.classList.remove('img-reveal'); // re-triggerable
+                    void els.heroImage.offsetWidth;               // force reflow
+                    els.heroImage.classList.add('img-reveal');
+                    els.heroImage.classList.remove('hidden');
+                    els.heroSection.setAttribute('aria-busy', 'false');
+                };
+                els.heroImage.alt = alt || 'Food photograph';
+                els.heroImage.src = src;
+            }
+
+            function usePlaceholder() {
+                els.heroSkeleton.classList.add('hidden');
+                els.heroImage.classList.add('hidden');
+                els.heroPlaceholder.classList.add('show');
+                els.heroSection.setAttribute('aria-busy', 'false');
+            }
+
+            // ---- Structured step rendering (textContent → XSS-safe) -------------
+            function renderSteps(steps) {
+                els.stepsList.innerHTML = '';
+                els.stepsList.classList.remove('hidden');
+
+                steps.forEach(function (step, i) {
+                    var li = document.createElement('li');
+                    li.className = 'step-in';
+                    li.style.animationDelay = (i * 130) + 'ms';
+
+                    if (step.title) {
+                        var h = document.createElement('h3');
+                        h.className = 'step-title';
+                        h.textContent = step.title;
+                        li.appendChild(h);
+                    }
+
+                    var p = document.createElement('p');
+                    p.className = 'step-body';
+                    p.textContent = step.body;
+
+                    li.appendChild(p);
+                    els.stepsList.appendChild(li);
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
